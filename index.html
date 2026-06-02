@@ -243,21 +243,26 @@ async function cargar() {
             <th style="width:40%">Producto</th>
             <th style="text-align:center">ISV</th>
             <th style="text-align:center">Cant.</th>
-            <th style="text-align:right">Precio Unit.</th>
+            <th style="text-align:right">P. Unit. sin ISV</th>
             <th style="text-align:right;color:#e8405a">Desc.</th>
-            <th style="text-align:right">Subtotal</th>
+            <th style="text-align:right">Total sin ISV</th>
           </tr>
         </thead>
         <tbody>
           ${items.map(it => {
-            const precio  = parseFloat(it.precio_final || it.precioUnitario || it.precio_unitario || it.precio || 0);
-            const lista   = parseFloat(it.precio_lista || precio);
-            const cant    = parseInt(it.cantidad || 1);
-            const sub     = parseFloat(it.subtotal || precio * cant);
-            const descItem= lista > precio ? lista - precio : 0;
-            const isv     = it.lleva_isv || it.isv || it.aplicaISV || false;
-            const nombre  = it.nombre || it.producto || '—';
-            const img     = it.imagen || it.image || '';
+            const precioConIsv = parseFloat(it.precio_final || it.precioUnitario || it.precio_unitario || it.precio || 0);
+            const listaConIsv  = parseFloat(it.precio_lista || precioConIsv);
+            const isv          = it.lleva_isv || it.isv || it.aplicaISV || false;
+            const isvPct       = parseFloat(it.isv_pct || (isv ? 0.15 : 0));
+            const divisor      = 1 + isvPct;
+            // Precios SIN ISV (como el PDF)
+            const precioSinIsv = precioConIsv / divisor;
+            const listaSinIsv  = listaConIsv  / divisor;
+            const cant         = parseInt(it.cantidad || 1);
+            const subSinIsv    = precioSinIsv * cant;
+            const descItem     = listaSinIsv > precioSinIsv ? (listaSinIsv - precioSinIsv) * cant : 0;
+            const nombre       = it.nombre || it.producto || '—';
+            const img          = it.imagen || it.image || '';
             return `<tr>
               <td>
                 <div style="display:flex;align-items:center;gap:12px">
@@ -270,9 +275,9 @@ async function cargar() {
               </td>
               <td style="text-align:center">${isv ? '<span class="isv-badge">+15%</span>' : '<span style="color:#8892aa;font-size:12px">—</span>'}</td>
               <td class="td-cant" style="text-align:center">${cant}</td>
-              <td class="td-price">${fmtLPS(precio)}</td>
-              <td style="text-align:right;color:#e8405a;font-weight:600">${descItem > 0 ? '- ' + fmtLPS(descItem) : '<span style="color:#ccc">—</span>'}</td>
-              <td class="td-sub">${fmtLPS(sub)}</td>
+              <td class="td-price">${fmtLPS(listaSinIsv)}</td>
+              <td style="text-align:right;color:#e8405a;font-weight:600">${descItem > 0.009 ? '- ' + fmtLPS(descItem) : '<span style="color:#ccc">—</span>'}</td>
+              <td class="td-sub">${fmtLPS(subSinIsv)}</td>
             </tr>`;
           }).join('')}
         </tbody>
@@ -296,8 +301,10 @@ async function cargar() {
         <div class="total-row final"><span class="tl">TOTAL</span><span class="tv">${fmtLPS(c.total)}</span></div>
         ${(() => {
           const ahorroTotal = items.reduce((acc, it) => {
-            const lista  = parseFloat(it.precio_lista || it.precio_final || 0);
-            const final  = parseFloat(it.precio_final || 0);
+            const isvPct   = parseFloat(it.isv_pct || (it.lleva_isv ? 0.15 : 0));
+            const divisor  = 1 + isvPct;
+            const lista    = parseFloat(it.precio_lista || it.precio_final || 0) / divisor;
+            const final    = parseFloat(it.precio_final || 0) / divisor;
             return acc + (lista > final ? (lista - final) * parseInt(it.cantidad || 1) : 0);
           }, 0);
           return ahorroTotal > 0 ? `<div style="margin-top:10px;padding:10px 12px;background:rgba(0,200,160,.08);border:1px solid rgba(0,200,160,.25);border-radius:8px;display:flex;justify-content:space-between;align-items:center">
