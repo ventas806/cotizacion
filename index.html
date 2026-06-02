@@ -282,8 +282,16 @@ async function cargar() {
     <!-- TOTALES -->
     <div class="cot-totales">
       <div class="total-inner">
-        <div class="total-row"><span>Subtotal sin ISV</span><span>${fmtLPS(c.subtotal_sin_isv)}</span></div>
-        <div class="total-row"><span>ISV (15%)</span><span>${fmtLPS(c.total_isv)}</span></div>
+        ${(() => {
+          const gravable   = parseFloat(c.total_isv) > 0 ? parseFloat(c.total_isv) / 0.15 : 0;
+          const noGravable = Math.max(0, parseFloat(c.subtotal_sin_isv) - gravable);
+          return `
+            <div class="total-row"><span>Subtotal sin ISV</span><span>${fmtLPS(c.subtotal_sin_isv)}</span></div>
+            ${gravable > 0 ? `<div class="total-row" style="padding-left:14px;color:#8892aa;font-size:13px"><span>↳ Importe Gravado 15%</span><span>${fmtLPS(gravable)}</span></div>` : ''}
+            ${noGravable > 0.01 ? `<div class="total-row" style="padding-left:14px;color:#8892aa;font-size:13px"><span>↳ Importe No Gravado</span><span>${fmtLPS(noGravable)}</span></div>` : ''}
+            <div class="total-row"><span>ISV (15%)</span><span>${fmtLPS(c.total_isv)}</span></div>
+          `;
+        })()}
         ${tieneDesc ? `<div class="total-row desc"><span>Descuento ${c.descuento_tipo === 'pct' ? '(' + parseFloat(c.descuento || 0).toFixed(1) + '%)' : ''}</span><span>- ${fmtLPS(descValor)}</span></div>` : ''}
         <div class="total-row final"><span class="tl">TOTAL</span><span class="tv">${fmtLPS(c.total)}</span></div>
         ${(() => {
