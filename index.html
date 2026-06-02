@@ -249,13 +249,14 @@ async function cargar() {
         </thead>
         <tbody>
           ${items.map(it => {
-            const precio = parseFloat(it.precioUnitario || it.precio_unitario || it.precio || 0);
+            const precio = parseFloat(it.precio_final || it.precioUnitario || it.precio_unitario || it.precio || 0);
             const cant   = parseInt(it.cantidad || 1);
             const sub    = parseFloat(it.subtotal || precio * cant);
-            const isv    = it.isv || it.aplicaISV || false;
+            const isv    = it.lleva_isv || it.isv || it.aplicaISV || false;
+            const nombre = it.nombre || it.producto || '—';
             return `<tr>
               <td>
-                <div class="td-prod">${it.producto || it.nombre || '—'}</div>
+                <div class="td-prod">${nombre}</div>
                 ${it.sku ? `<div class="td-sku">SKU: ${it.sku}</div>` : ''}
               </td>
               <td style="text-align:center">${isv ? '<span class="isv-badge">+15%</span>' : '<span style="color:#8892aa;font-size:12px">—</span>'}</td>
