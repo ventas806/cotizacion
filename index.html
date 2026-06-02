@@ -154,21 +154,21 @@ function diasRestantes(fechaStr) {
 
 async function cargar() {
   const params = new URLSearchParams(location.search);
-  const id = params.get('id') || params.get('numero') || '';
+  const token = params.get('t') || params.get('id') || params.get('numero') || '';
   const card = document.getElementById('cotCard');
 
-  if (!id) {
-    card.innerHTML = `<div class="estado-wrap"><div class="estado-icon">🔍</div><div class="estado-titulo">Cotización no encontrada</div><div class="estado-sub">El link no contiene un número de cotización válido.</div></div>`;
+  if (!token) {
+    card.innerHTML = `<div class="estado-wrap"><div class="estado-icon">🔍</div><div class="estado-titulo">Link inválido</div><div class="estado-sub">El link no es válido. Solicita uno nuevo a Focus Store.</div></div>`;
     return;
   }
 
-  const { data, error } = await sb.rpc('get_cotizacion_publica', { p_numero: id });
+  const { data, error } = await sb.rpc('get_cotizacion_publica', { p_token: token });
   if (error) {
     card.innerHTML = `<div class="estado-wrap"><div class="estado-icon">⚠️</div><div class="estado-titulo">Error al cargar</div><div class="estado-sub" style="font-family:monospace;font-size:11px">${JSON.stringify(error)}</div></div>`;
     return;
   }
   if (!data || !data.length) {
-    card.innerHTML = `<div class="estado-wrap"><div class="estado-icon">😕</div><div class="estado-titulo">No se encontró la cotización</div><div class="estado-sub">El número <strong>${id}</strong> no existe o fue eliminada.</div></div>`;
+    card.innerHTML = `<div class="estado-wrap"><div class="estado-icon">😕</div><div class="estado-titulo">No se encontró la cotización</div><div class="estado-sub">El link puede haber expirado o no es válido.</div></div>`;
     return;
   }
 
