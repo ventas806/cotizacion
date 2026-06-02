@@ -254,10 +254,16 @@ async function cargar() {
             const sub    = parseFloat(it.subtotal || precio * cant);
             const isv    = it.lleva_isv || it.isv || it.aplicaISV || false;
             const nombre = it.nombre || it.producto || '—';
+            const img    = it.imagen || it.image || '';
             return `<tr>
               <td>
-                <div class="td-prod">${nombre}</div>
-                ${it.sku ? `<div class="td-sku">SKU: ${it.sku}</div>` : ''}
+                <div style="display:flex;align-items:center;gap:12px">
+                  ${img ? `<img src="${img}" alt="" style="width:52px;height:52px;object-fit:contain;border-radius:8px;border:1px solid #eef0f5;flex-shrink:0;background:#f9fafc">` : ''}
+                  <div>
+                    <div class="td-prod">${nombre}</div>
+                    ${it.sku ? `<div class="td-sku">SKU: ${it.sku}</div>` : ''}
+                  </div>
+                </div>
               </td>
               <td style="text-align:center">${isv ? '<span class="isv-badge">+15%</span>' : '<span style="color:#8892aa;font-size:12px">—</span>'}</td>
               <td class="td-cant" style="text-align:center">${cant}</td>
