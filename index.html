@@ -266,6 +266,7 @@ async function cargar() {
             const descItem     = listaSinIsv > precioSinIsv ? (listaSinIsv - precioSinIsv) * cant : 0;
             const nombre       = it.nombre || it.producto || '—';
             const img          = it.imagen || it.image || '';
+            const nota         = it.nota_item || it.notaItem || '';
             return `<tr>
               <td>
                 <div style="display:flex;align-items:center;gap:12px">
@@ -273,6 +274,7 @@ async function cargar() {
                   <div>
                     <div class="td-prod">${nombre}</div>
                     ${it.sku ? `<div class="td-sku">SKU: ${it.sku}</div>` : ''}
+                    ${nota ? `<div style="font-size:11px;color:#5a6785;margin-top:3px;font-style:italic">📝 ${nota}</div>` : ''}
                   </div>
                 </div>
               </td>
