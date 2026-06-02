@@ -175,9 +175,12 @@ async function cargar() {
   const c = data[0];
   const dias = diasRestantes(c.fecha_vencimiento);
   const vencida = dias !== null && dias < 0;
-  const estadoBadge = c.estado === 'Activa' && !vencida ? '<span class="badge-estado badge-activa">✅ Activa</span>'
-    : c.estado === 'Convertida' ? '<span class="badge-estado badge-convertida">🎉 Convertida en Venta</span>'
-    : '<span class="badge-estado badge-vencida">⛔ Vencida</span>';
+  const est = (c.estado || '').toLowerCase();
+  const estadoBadge = est === 'activa' && !vencida ? '<span class="badge-estado badge-activa">✅ Activa</span>'
+    : est === 'convertida' ? '<span class="badge-estado badge-convertida">🎉 Convertida en Venta</span>'
+    : est === 'rechazada' ? '<span class="badge-estado badge-vencida">❌ Rechazada</span>'
+    : vencida ? '<span class="badge-estado badge-vencida">⛔ Vencida</span>'
+    : '<span class="badge-estado badge-activa">✅ Activa</span>';
 
   const items = (c.items || []);
   const descValor = parseFloat(c.descuento_valor || 0);
@@ -316,6 +319,21 @@ async function cargar() {
     </div>
 
     ${c.observaciones ? `<div class="cot-obs"><div class="obs-title">📝 Observaciones</div><div class="obs-text">${c.observaciones}</div></div>` : ''}
+
+    <!-- FIRMA Y SELLO -->
+    ${c.firma_url ? `
+    <div style="padding:24px 36px;border-top:1px solid #eef0f5;display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:20px">
+      <div style="text-align:center;min-width:180px">
+        <img src="${c.firma_url}" alt="Firma y Sello" style="max-height:80px;max-width:200px;object-fit:contain;margin-bottom:8px">
+        <div style="border-top:1px solid #ccc;padding-top:6px;font-size:11px;color:#8892aa;font-weight:600">Firma y Sello · FOCUS STORE</div>
+      </div>
+      <div style="text-align:center;min-width:180px">
+        <div style="height:80px;display:flex;align-items:flex-end;justify-content:center">
+          <div style="width:200px;border-bottom:1px solid #ccc"></div>
+        </div>
+        <div style="padding-top:6px;font-size:11px;color:#8892aa;font-weight:600">Aceptado por · ${c.cliente_nombre||'Cliente'}</div>
+      </div>
+    </div>` : ''}
 
     <!-- FOOTER ACCIONES -->
     <div class="cot-footer">
