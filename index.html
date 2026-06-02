@@ -163,7 +163,11 @@ async function cargar() {
   }
 
   const { data, error } = await sb.rpc('get_cotizacion_publica', { p_numero: id });
-  if (error || !data || !data.length) {
+  if (error) {
+    card.innerHTML = `<div class="estado-wrap"><div class="estado-icon">⚠️</div><div class="estado-titulo">Error al cargar</div><div class="estado-sub" style="font-family:monospace;font-size:11px">${JSON.stringify(error)}</div></div>`;
+    return;
+  }
+  if (!data || !data.length) {
     card.innerHTML = `<div class="estado-wrap"><div class="estado-icon">😕</div><div class="estado-titulo">No se encontró la cotización</div><div class="estado-sub">El número <strong>${id}</strong> no existe o fue eliminada.</div></div>`;
     return;
   }
